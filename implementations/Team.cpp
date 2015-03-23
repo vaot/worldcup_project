@@ -1,4 +1,5 @@
 #include "Team.h"
+#include "vaot_utilities.h"
 #include <iostream>
 #include <sstream>
 
@@ -15,20 +16,20 @@ void Team::newFromConfig(string stringRow) {
   string word;
   int column = 1;
 
-  // while (stringStream >> word) {
-  //   switch(column) {
-  //     case 1:
-  //       name = word;
-  //       column++;
-  //       break;
-  //     case 2:
-  //       overallWeight = word;
-  //       column++;
-  //       break;
-  //     case 3:
-  //       foulsLikelihood = word;
-  //       column++;
-  //       break;
-  //   }
-  // }
+  while (stringStream >> word) {
+    switch(column) {
+      case 1:
+        name = word;
+        column++;
+        break;
+      case 2:
+        overallWeight = vaot::toInt(word);
+        column++;
+        break;
+      case 3:
+        foulsLikelihood = vaot::toInt(word);
+        column++;
+        break;
+    }
+  }
 }
