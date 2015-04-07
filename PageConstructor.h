@@ -2,6 +2,8 @@
 #define PAGE_CONSTRUCTOR_H
 
 #include <string>
+#include <vector>
+#include "Team.h"
 
 using namespace std;
 
@@ -11,10 +13,13 @@ class PageConstructor {
   public:
     PageConstructor(string fileName);
 
-    void writeTeams();
+    void generateTeamsProfile(const vector<Team> &teams);
+
+    void addPageElement(string& newElement);
 
   private:
     string outputFileName;
+    vector<string> pageElements;
 };
 
 #endif

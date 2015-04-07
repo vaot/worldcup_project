@@ -1,6 +1,7 @@
 #ifndef WORLD_CUP_H
 #define WORLD_CUP_H
 
+#include <time.h>
 #include "Team.h"
 #include <string>
 #include <vector>
@@ -11,10 +12,20 @@ class WorldCup {
   public:
     WorldCup(string configFileName);
 
+    // Keep track of time
+    void initTime();
+
     // Add team and return teams size
-    int addTeam(Team newTeam);
+    int addTeam(Team& newTeam);
+
+    // DISPLAY FUNCTIONS
+    void generateResultHtmlPage();
+
+    clock_t getStartOfGame() { return startOfGame; }
 
   private:
+    clock_t startOfGame;
+
     string configFile;
 
     //  Will take of setting up our current object instance
