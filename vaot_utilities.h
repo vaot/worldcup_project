@@ -114,6 +114,17 @@ namespace vaot {
     #endif
   }
 
+  static void playSound(string name) {
+     // You are welcome KJ :)
+    #ifdef _WIN32
+      PlaySound(TEXT(name.c_str()), NULL, SND_ASYNC);
+    #endif
+    // Mac users
+    #ifdef __APPLE__
+      system(("open " + name).c_str());
+    #endif
+  }
+
 }
 
 #endif

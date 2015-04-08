@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int NUMBER_OF_PLAYERS = 22;
+const int NUMBER_OF_PLAYERS = 12;
 const int MIN_PLAYER_SCORE = 30;
 
 class Player {
