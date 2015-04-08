@@ -11,11 +11,17 @@ const int MIN_PLAYER_SCORE = 30;
 class Player {
   public:
     Player();
+
     Player(string, int);
+
     string getName();
+
     int getSkill(string type);
+
     int defend();
+
     int attack();
+
 
   private:
     string name;

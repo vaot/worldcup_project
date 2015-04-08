@@ -1,5 +1,9 @@
 #include <cstdlib>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // By Victor Andrey Oliveira Teles(vaot)
 // Meant to support project implementation, providing
 // handy functions.
@@ -8,6 +12,21 @@
 #define VAOT_UTILITIES_H_
 
 namespace vaot {
+
+  static bool include(int list[], int el, int size) {
+    for (int i = 0; i < size; ++i) {
+      if (list[i] == el) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static void swapValues(int list[], int pos1, int pos2) {
+    int temp = list[pos1];
+    list[pos1] = list[pos2];
+    list[pos2] = temp;
+  }
 
   static int toInt(string numericString) {
     int temp;
@@ -31,6 +50,70 @@ namespace vaot {
   static double randomDouble(double from, double to) {
     return ((to - from) * ( (double)rand() / (double)RAND_MAX ) + from);
   }
+
+  static void bubbleSort(int list[], int size) {
+    // In bubble sort, we just need to iterate
+    // again, provided that there is a swap.
+    bool flag = true;
+    for (int i = 0; (i < size) && flag; ++i) {
+      flag = false;
+      for (int j = 0; j < size - 1; ++j) {
+        if (list[j] > list[j + 1]) {
+          swapValues(list, j, j+1);
+          flag = true;
+        }
+      }
+    }
+  }
+
+  static void selectionSort(int list[], int size) {
+    int smallest;
+    for (int i = 0; i < size; ++i) {
+      smallest = i;
+
+      // Find the smallest
+      for (int j = i + 1; j < size; ++j) {
+        if (list[smallest] > list[j]) smallest = j;
+      }
+
+      swapValues(list, smallest, i);
+    }
+  }
+
+  static void insertionSort(int list[], int size) {
+    for (int i = 1; i < size; ++i) {
+      int outerIndex = i;
+      // Move to left side of array
+      while (outerIndex > 0 && list[outerIndex - 1] > list[outerIndex]) {
+        swapValues(list, outerIndex-1, outerIndex);
+        outerIndex--;
+      }
+    }
+  }
+
+  static void reverseArray(int list[], int size) {
+    for (int l = 0, r = size - 1; l < r; l++, r--) {
+      swapValues(list, r, l);
+    }
+  }
+
+  static void reverseArrayRec(int list[], int left, int right) {
+    if (left > right) return;
+    swapValues(list, left, right);
+    reverseArrayRec(list, left+1, right-1);
+  }
+
+  static void openUrl(string url) {
+    // You are welcome KJ :)
+    #ifdef _WIN32
+      ShellExecute(NULL, TEXT("open"), TEXT(url.c_str()), NULL, NULL, SW_SHOWNORMAL);
+    #endif
+    // Mac users
+    #ifdef __APPLE__
+      system(("open " + url).c_str());
+    #endif
+  }
+
 }
 
 #endif

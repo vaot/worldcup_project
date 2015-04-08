@@ -1,31 +1,33 @@
 #ifndef WORLD_CUP_H
 #define WORLD_CUP_H
 
-#include <time.h>
 #include "Team.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 
+const int USER_SELECTED_TEAMS = 4;
+
 class WorldCup {
   public:
     WorldCup(string configFileName);
 
-    // Keep track of time
-    void initTime();
+    // Start the show
+    void start();
 
     // Add team and return teams size
     int addTeam(Team& newTeam);
 
-    // DISPLAY FUNCTIONS
     void generateResultHtmlPage();
 
-    clock_t getStartOfGame() { return startOfGame; }
+    void pickTeamsForSemifinals();
+
+    void randomlyPickTeams();
+
+    void displayTeams();
 
   private:
-    clock_t startOfGame;
-
     string configFile;
 
     //  Will take of setting up our current object instance
@@ -33,6 +35,10 @@ class WorldCup {
 
     // All teams object will be stored here
     vector<Team> teams;
+
+    // It will hold indexes of #teams, which in turn
+    // is a vector.
+    int selectedTeamsIndexes[USER_SELECTED_TEAMS];
 };
 
 #endif

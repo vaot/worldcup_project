@@ -3,9 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <thread>
-#include <time.h>
 #include "PageConstructor.h"
+#include "Game.h"
+#include "vaot_utilities.h"
 
 using namespace std;
 
@@ -31,11 +31,16 @@ void WorldCup::setUpConfig() {
     addTeam(newTeam);
   }
 
-  for (int i = 0; i < teams.size(); ++i) {
-    cout << teams[i].getPlayer(1).getName() << endl;
-    cout << teams[i].getPlayer(1).getSkill("power") << endl;
-    cout << teams[i].attackWith(3) << endl;
-  }
+  // TO DO: Remove this
+  // for (int i = 0; i < teams.size(); ++i) {
+  //   cout << teams[i].getPlayer(1).getName() << endl;
+  //   cout << teams[i].getPlayer(1).getSkill("power") << endl;
+  //   cout << teams[i].attackWith(3) << endl;
+  // }
+  // cout << endl;
+
+  // Game newGame(teams[1], teams[2]);
+  // newGame.play();
 }
 
 int WorldCup::addTeam(Team& newTeam) {
@@ -48,20 +53,69 @@ void WorldCup::generateResultHtmlPage() {
   newPage.generateTeamsProfile(teams);
 }
 
-void WorldCup::initTime() {
-  // TO DO: Implement time
-  clock_t gameTime;
-  double gameTimeInSec = 0;
-  gameTime = clock();
+void WorldCup::start() {
+  ifstream presentation;
+  presentation.open("presentation.txt");
+  cout << presentation.rdbuf();
 
-  cout.setf(ios::fixed);
-  cout.setf(ios::showpoint);
-  cout.precision(4);
+  cout << endl;
+  cout << endl;
 
-  do {
-    cout << "time" << endl;
-    clock_t temp = clock() - gameTime;
-    gameTimeInSec = (((double)temp)/CLOCKS_PER_SEC);
-    cout << gameTimeInSec;
-  } while (gameTimeInSec < 1.0);
+  for (int i = 0; i < teams.size(); ++i) {
+    printf("%d %s \n", i, teams[i].getName().c_str());
+  }
+
+  cout << endl;
+
+  // Pick the teams for semi-finals
+  pickTeamsForSemifinals();
+
+  cout << "Alright !!!!!!!! \n";
+  cout << "================================================ \n";
+
+  for (int i = 0; i < USER_SELECTED_TEAMS; ++i) cout << selectedTeamsIndexes[i] << endl;
+
+  Game firstSemiFinal =
+    Game(teams[selectedTeamsIndexes[0]], teams[selectedTeamsIndexes[1]]);
+
+  Game secondSemiFinal =
+    Game(teams[selectedTeamsIndexes[2]], teams[selectedTeamsIndexes[3]]);
+
+  cout << firstSemiFinal;
+  firstSemiFinal.play();
+  firstSemiFinal.initTime();
+  cout << secondSemiFinal;
+}
+
+void WorldCup::pickTeamsForSemifinals() {
+  cout << "Hey, hang tight there, the semi-finals are on the way\n";
+  cout << "1 - Press (1) for letting us randomly select 4 teams.\n";
+  cout << "2 - Press (2) if you want to select 4 teams.\n";
+  int choice;
+  cin >> choice;
+
+  if (choice == 1) {
+    randomlyPickTeams();
+    return;
+  }
+
+  // If we got to this point, choice --> 2
+  for (int i = 0; i < USER_SELECTED_TEAMS; ++i) {
+    printf("Please type the number of %dth Team: ", (i+1));
+    cin >> selectedTeamsIndexes[i];
+  }
+}
+
+void WorldCup::randomlyPickTeams() {
+  for (int i = 0; i < USER_SELECTED_TEAMS; ++i) {
+    // We can now randomly pick indexes of our teams vector
+    int temp = 2;
+
+    // We need to ensure we pick unique indexes
+    while (vaot::include(selectedTeamsIndexes, temp, USER_SELECTED_TEAMS)) {
+      temp = vaot::randomInt(0, (teams.size()-1));
+    }
+
+    selectedTeamsIndexes[i] = temp;
+  }
 }

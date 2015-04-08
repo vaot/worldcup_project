@@ -6,14 +6,13 @@
 #include <cstdlib>
 #include <ctime>
 
-
 using namespace std;
 
 int main(int argc, char const *argv[]) {
   srand(time(0));
   WorldCup newCup("WorldCup.txt");
   newCup.generateResultHtmlPage();
-
+  newCup.start();
 
   // TO DO: Implement time
   // clock_t gameTime;
