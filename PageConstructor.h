@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "Team.h"
+#include "WorldCup.h"
 
 using namespace std;
 
@@ -11,15 +11,32 @@ using namespace std;
 // that lets users visualize the results of the games
 class PageConstructor {
   public:
-    PageConstructor(string fileName);
+    PageConstructor(string fileName, WorldCup *cup);
 
-    void generateTeamsProfile(const vector<Team> &teams);
+    void generateTeamsProfile(ofstream& file);
 
-    void addPageElement(string& newElement);
+    void generateFoulsProfile(ofstream& file);
+
+    void generateGoalsProfile(ofstream& file);
+
+    void generateRowsFoulsProfile(ofstream& file, char type);
+
+    void generateRowsGoalsProfile(ofstream& file, char type);
+
+    void generateTeamsTab(ofstream& file);
+
+    void generateTeamsTabContent(ofstream& file);
+
+    void generateTeamsTabContentRow(ofstream& file, int& index);
+
+    void generateOverallSummary(ofstream& file);
+
+    void build();
 
   private:
+    WorldCup *worldCup;
+
     string outputFileName;
-    vector<string> pageElements;
 };
 
 #endif

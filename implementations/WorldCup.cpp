@@ -11,35 +11,8 @@ using namespace std;
 
 WorldCup::WorldCup(string configFileName) {
   configFile = configFileName;
+  _currentGameIndex = 0;
   setUpConfig();
-}
-
-void WorldCup::setUpConfig() {
-  ifstream iStream;
-  iStream.open(configFile);
-
-  // Start getting country config
-  string newTeamConfigRow;
-
-  // Get line by line the content of the config file
-  while(!iStream.eof()) {
-    getline(iStream, newTeamConfigRow);
-
-    Team newTeam;
-    newTeam.newFromConfig(newTeamConfigRow);
-
-    addTeam(newTeam);
-  }
-}
-
-int WorldCup::addTeam(Team& newTeam) {
-  teams.push_back(newTeam);
-  return teams.size();
-}
-
-void WorldCup::generateResultHtmlPage() {
-  PageConstructor newPage("results.html");
-  newPage.generateTeamsProfile(teams);
 }
 
 inline void displayChampionPresentation() {
@@ -69,59 +42,57 @@ inline void displayNoteOnStatistics() {
   vaot::openUrl("results.html");
 }
 
-void WorldCup::start() {
+int* WorldCup::getQualifiedTeams() {
+  return selectedTeamsIndexes;
+}
 
-  displayStartPresentation();
+void WorldCup::setUpConfig() {
+  ifstream iStream;
+  iStream.open(configFile);
 
-  for (int i = 0; i < teams.size(); ++i) {
-    printf("%d %s \n", i, teams[i].getName().c_str());
+  // Start getting country config
+  string newTeamConfigRow;
+
+  // Get line by line the content of the config file
+  while(!iStream.eof()) {
+    getline(iStream, newTeamConfigRow);
+
+    Team newTeam;
+    newTeam.newFromConfig(newTeamConfigRow);
+
+    addTeam(newTeam);
   }
+}
 
-  cout << endl;
+int WorldCup::addTeam(Team& newTeam) {
+  teams.push_back(newTeam);
+  return teams.size();
+}
 
-  // Pick the teams for semi-finals
-  pickTeamsForSemifinals();
+Team* WorldCup::getTeam(int index) {
+  return &teams[index];
+}
 
-  cout << "Alright !!!!!!!! \n";
-  cout << "================================================ \n";
+Game* WorldCup::getGame(int index) {
+  return games[index];
+}
 
-  for (int i = 0; i < USER_SELECTED_TEAMS; ++i) cout << selectedTeamsIndexes[i] << endl;
+int WorldCup::getTeamsCount() {
+  return (teams.size());
+}
 
-  Game firstSemiFinal =
-    Game(teams[selectedTeamsIndexes[0]], teams[selectedTeamsIndexes[1]]);
+void WorldCup::addGame(Game *game) {
+  games[_currentGameIndex] = game;
+  _currentGameIndex++;
+}
 
-  Game secondSemiFinal =
-    Game(teams[selectedTeamsIndexes[2]], teams[selectedTeamsIndexes[3]]);
+int WorldCup::getGameCurrentIndex() {
+  return _currentGameIndex;
+}
 
-  cout << "===== FIRST SEMI - FINAL ======" << endl;
-  vaot::playSound("RefereeStart.wav");
-  cout << firstSemiFinal << endl;
-  firstSemiFinal.initTime();
-
-  cout << "===== SECOND SEMI - FINAL ======" << endl;
-  cout << secondSemiFinal << endl;
-  secondSemiFinal.initTime();
-
-  Game thirdPlace =
-    Game(*firstSemiFinal.getLoser(), *secondSemiFinal.getLoser());
-  cout << "====== THIRD PLACE - GAME ======" << endl;
-  cout << thirdPlace << endl;
-  thirdPlace.initTime();
-
-  Game final =
-    Game(*firstSemiFinal.getWinner(), *secondSemiFinal.getWinner());
-  cout << "===== WORLD CUP FINAL ======" << endl;
-  cout << final << endl;
-  final.initTime();
-
-  displayChampionPresentation();
-  vaot::playSound("WinnerSound.wav");
-  cout << "Wowowowowowoow Champion of Soccer World Cup 2014: "
-       << final.getWinner()->getName();
-  cout << "\n\n\n\n\n\n";
-
-  displayNoteOnStatistics();
-  generateResultHtmlPage();
+void WorldCup::buildHtmlPage() {
+  PageConstructor newPage("results.html", this);
+  newPage.build();
 }
 
 void WorldCup::pickTeamsForSemifinals() {
@@ -156,3 +127,63 @@ void WorldCup::randomlyPickTeams() {
     selectedTeamsIndexes[i] = temp;
   }
 }
+
+void WorldCup::start() {
+
+  displayStartPresentation();
+
+  for (int i = 0; i < teams.size(); ++i) {
+    printf("%d %s \n", i, teams[i].getName().c_str());
+  }
+
+  cout << endl;
+
+  // Pick the teams for semi-finals
+  pickTeamsForSemifinals();
+
+  cout << "Alright !!!!!!!! \n";
+  cout << "================================================ \n";
+
+  for (int i = 0; i < USER_SELECTED_TEAMS; ++i) cout << selectedTeamsIndexes[i] << endl;
+
+  Game firstSemiFinal =
+    Game(teams[selectedTeamsIndexes[0]], teams[selectedTeamsIndexes[1]]);
+  addGame(&firstSemiFinal);
+
+  Game secondSemiFinal =
+    Game(teams[selectedTeamsIndexes[2]], teams[selectedTeamsIndexes[3]]);
+  addGame(&secondSemiFinal);
+
+  cout << "===== FIRST SEMI - FINAL ======" << endl;
+  vaot::playSound("GameStart.wav");
+  cout << firstSemiFinal << endl;
+  firstSemiFinal.initTime();
+
+  cout << "===== SECOND SEMI - FINAL ======" << endl;
+  cout << secondSemiFinal << endl;
+  secondSemiFinal.initTime();
+
+  Game thirdPlace =
+    Game(*firstSemiFinal.getLoser(), *secondSemiFinal.getLoser());
+  addGame(&thirdPlace);
+  cout << "====== THIRD PLACE - GAME ======" << endl;
+  cout << thirdPlace << endl;
+  thirdPlace.initTime();
+
+  Game final =
+    Game(*firstSemiFinal.getWinner(), *secondSemiFinal.getWinner());
+  addGame(&final);
+  cout << "===== WORLD CUP FINAL ======" << endl;
+  cout << final << endl;
+  final.initTime();
+
+  displayChampionPresentation();
+  vaot::playSound("WinnerSound.wav");
+  cout << "Wowowowowowoow Champion of Soccer World Cup 2014: "
+       << final.getWinner()->getName();
+  cout << "\n\n\n\n\n\n";
+
+  buildHtmlPage();
+  displayNoteOnStatistics();
+}
+

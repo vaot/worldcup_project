@@ -12,9 +12,9 @@ class Team {
 
     void newFromConfig(string stringRow);
 
-    string getName() const;
+    const string& getName() const;
 
-    Player& getPlayer(int index);
+    Player* getPlayer(int index);
 
     int getOverallWeight() const;
 

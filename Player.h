@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int NUMBER_OF_PLAYERS = 12;
+const int NUMBER_OF_PLAYERS = 15;
 const int MIN_PLAYER_SCORE = 30;
 
 class Player {
@@ -15,6 +15,8 @@ class Player {
     Player(string, int);
 
     string getName();
+
+    void setName(string n);
 
     int getSkill(string type);
 

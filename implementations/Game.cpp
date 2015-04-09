@@ -7,17 +7,17 @@
 #include "vaot_utilities.h"
 
 int GLOBAL_CLOCK_FLAG = 1;
-int GLOBAL_SHOW_RESULT_FLAG = 0;
+Game *currentGame;
 
-Game::Game(const Team& a, const Team& b) {
-  teamA = a;
-  teamB = b;
+Game::Game(Team& a, Team& b) {
+  teamA = &a;
+  teamB = &b;
   teamAComparisonsWin = 0;
   teamBComparisonsWin = 0;
 }
 
 void Game::play() {
-  if (teamA.attackWith(vaot::randomInt(0, 22)) > teamB.defendWith(vaot::randomInt(0, 22))) {
+  if (teamA->attackWith(vaot::randomInt(0, 22)) > teamB->defendWith(vaot::randomInt(0, 22))) {
     teamAComparisonsWin++;
   } else {
     teamBComparisonsWin++;
@@ -25,19 +25,19 @@ void Game::play() {
 }
 
 void Game::computeFouls() {
-  clock_t now = clock() - startOfGame;
+  float now = vaot::clockToSeconds(clock() - startOfGame);
 
-  if (vaot::randomInt(0, 100) > vaot::randomInt(0, 100)) {
+  if ((vaot::randomInt(0, 100)*teamA->getFoulsLikelihood()) > (vaot::randomInt(0, 100)*teamB->getFoulsLikelihood())) {
 
-    Foul foulA = {&teamA.getPlayer(vaot::randomInt(0,22)), now};
+    Foul foulA = {teamA->getPlayer(vaot::randomInt(0,14)), &teamB->getName(), now};
     teamAFouls.push_back(foulA);
-    cout << "Wowwww foul from " <<  teamA.getName() << endl;
+    cout << "Wowwww foul from " <<  teamB->getName() << endl;
 
   } else {
 
-    Foul foulB = {&teamB.getPlayer(vaot::randomInt(0,22)), now};
+    Foul foulB = {teamB->getPlayer(vaot::randomInt(0,14)), &teamB->getName(), now};
     teamBFouls.push_back(foulB);
-    cout << "Wowwww foul from " <<  teamB.getName() << endl;
+    cout << "Wowwww foul from " <<  teamB->getName() << endl;
 
   }
 
@@ -48,19 +48,19 @@ void Game::computeFouls() {
 }
 
 void Game::computeGoals() {
-  clock_t now = clock() - startOfGame;
+  float now = vaot::clockToSeconds(clock() - startOfGame);
 
-  if (vaot::randomInt(0, 100) > vaot::randomInt(0, 100)) {
+  if ((vaot::randomInt(0, 100)*teamA->getOverallWeight()) > (vaot::randomInt(0, 100)*teamB->getOverallWeight())) {
 
-    Goal goalA = {&teamA.getPlayer(vaot::randomInt(0,22)), false, now};
+    Goal goalA = {teamA->getPlayer(vaot::randomInt(0,14)), &teamB->getName(), false, now};
     teamAGoals.push_back(goalA);
-    cout << "Wowwww goal from " <<  teamA.getName() << endl;
+    cout << "Wowwww goal from " <<  teamB->getName() << endl;
 
   } else {
 
-    Goal goalB = {&teamB.getPlayer(vaot::randomInt(0,22)), false, now};
+    Goal goalB = {teamB->getPlayer(vaot::randomInt(0,14)), &teamB->getName(), false, now};
     teamBGoals.push_back(goalB);
-    cout << "Wowwww goal from " <<  teamB.getName() << endl;
+    cout << "Wowwww goal from " <<  teamB->getName() << endl;
   }
 
   ifstream goalAscii;
@@ -69,13 +69,13 @@ void Game::computeGoals() {
   goalAscii.close();
 }
 
-ostream& operator<<(ostream& os, const Game& game) {
+ostream& operator<<(ostream& os, Game& game) {
   os << endl;
 
   os << "====================  "
-     << game.getTeam('A').getName()
+     << game.getTeam('A')->getName()
      << " x "
-     << game.getTeam('B').getName()
+     << game.getTeam('B')->getName()
      << "  ===================="
      << endl;
 
@@ -86,7 +86,7 @@ ostream& operator<<(ostream& os, const Game& game) {
   return os;
 }
 
-const Team& Game::getTeam(char team) const {
+Team* Game::getTeam(char team) {
   switch(team) {
     case 'A':
       return teamA;
@@ -97,11 +97,34 @@ const Team& Game::getTeam(char team) const {
   }
 }
 
+vector<Goal>& Game::getGoals(char type) {
+  switch(type) {
+    case 'A':
+      return teamAGoals;
+      break;
+    case 'B':
+      return teamBGoals;
+      break;
+  }
+}
+
+vector<Foul>& Game::getFouls(char type) {
+  switch(type) {
+    case 'A':
+      return teamAFouls;
+      break;
+    case 'B':
+      return teamBFouls;
+      break;
+  }
+}
+
 // Friend Function
 void switchDisplayMode(int signum) {
   cout << "You want to see live ? (type the number)\n";
   cout << "1 - Game time\n";
-  cout << "2 - Advance and show result\n";
+  cout << "2 - Open Results Page\n";
+  cout << "3 - Change Player\n";
 
   int choice;
 
@@ -112,20 +135,23 @@ void switchDisplayMode(int signum) {
       cout << "Time again" << endl;
       break;
     case 2:
-      cout << "We hear the whistle" << endl;
-      GLOBAL_CLOCK_FLAG = 0;
-      GLOBAL_SHOW_RESULT_FLAG = 1;
+      cout << "Opening Results Page" << endl;
+      vaot::openUrl("results.html");
+      break;
+    case 3:
+      cout << "Choose Team to change player" << endl;
+      currentGame->exchangePlayer();
       break;
   }
 }
 
 void Game::determineWinner() {
   if (teamAGoals.size() > teamBGoals.size()) {
-    winner = &teamA;
-    loser = &teamB;
+    winner = teamA;
+    loser = teamB;
   } else if (teamAGoals.size() < teamBGoals.size()) {
-    winner = &teamB;
-    loser = &teamA;
+    winner = teamB;
+    loser = teamA;
   } else {
     determineWinnerFromPenalties();
     return;
@@ -138,42 +164,54 @@ void Game::determineWinner() {
        << endl;
 
   cout << "========== "
-       << teamA.getName()
+       << teamB->getName()
        << " " << teamAGoals.size()
        << " X "
        << teamBGoals.size() << " "
-       << teamB.getName() << "\n\n";
+       << teamB->getName() << "\n\n";
+}
+
+string Game::displayResult() {
+  string temp;
+  temp += teamB->getName();
+  temp += " ";
+  temp += to_string(teamAGoals.size());
+  temp += " X ";
+  temp += to_string(teamBGoals.size());
+  temp += " ";
+  temp += teamB->getName();
+  return temp;
 }
 
 void Game::determineWinnerFromPenalties() {
   int penaltiesA = 0, penaltiesB = 0;
-  clock_t now = clock() - startOfGame;
+  float now = vaot::clockToSeconds(clock() - startOfGame);
 
   for (int i = 0; i < NUMBER_OF_PLAYERS ; ++i) {
     Player *tempPlayerA, *tempPlayerB;
-    tempPlayerA = &teamA.getPlayer(i);
-    tempPlayerB = &teamB.getPlayer(i);
+    tempPlayerA = teamA->getPlayer(i);
+    tempPlayerB = teamB->getPlayer(i);
 
     if (tempPlayerA->attack() > tempPlayerA->defend()){
       penaltiesA++;
-      Goal goalA = {tempPlayerA, true, now};
+      Goal goalA = {tempPlayerA, &teamB->getName(), true, now};
       teamAGoals.push_back(goalA);
     }
 
     if (tempPlayerB->attack() > tempPlayerB->defend()) {
       penaltiesB++;
-      Goal goalB = {tempPlayerB, true, now};
+      Goal goalB = {tempPlayerB, &teamB->getName(), true, now};
       teamBGoals.push_back(goalB);
     }
   }
 
   // Determine who won
   if(penaltiesA > penaltiesB) {
-    winner = &teamA;
-    loser = &teamB;
+    winner = teamA;
+    loser = teamB;
   } else {
-    winner = &teamB;
-    loser = &teamA;
+    winner = teamB;
+    loser = teamA;
   }
 
   cout << "\n\n";
@@ -184,6 +222,7 @@ void Game::determineWinnerFromPenalties() {
 }
 
 void Game::initTime() {
+  currentGame = this;
   startOfGame = clock();
 
   float gameTimeInSec = 0;
@@ -209,13 +248,12 @@ void Game::initTime() {
          << "(Press ctr + c to switch modes): Game Time: "
          << gameTimeInSec << "\r";
 
-    // We will compute fouls every 3 secs
-    if (fmod(gameTimeInSec, 2.5) == 0.0) {
+    if (fmod(gameTimeInSec, 1.5) == 0.0) {
       cout << "\n";
       computeFouls();
     }
 
-    if (fmod(gameTimeInSec, 1.5) == 0.0) {
+    if (fmod(gameTimeInSec, 2.5) == 0.0) {
       cout << "\n";
       computeGoals();
     }
@@ -224,7 +262,7 @@ void Game::initTime() {
     play();
   } while (gameTimeInSec < 14.0 && GLOBAL_CLOCK_FLAG);
 
-  vaot::playSound("RefereeStart.wav");
+  vaot::playSound("GameStart.wav");
   determineWinner();
 }
 

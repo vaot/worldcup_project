@@ -8,20 +8,22 @@
 
 struct Foul {
   Player *player;
-  clock_t when;
+  const string *teamName;
+  float when;
 };
 
 struct Goal {
   Player *player;
+  const string *teamName;
   bool fromPenalty;
-  clock_t when;
+  float when;
 };
 
 class Game {
   public:
-    Game(const Team&, const Team&);
+    Game(Team&, Team&);
 
-    const Team& getTeam(char team) const;
+    Team* getTeam(char team);
 
     void play();
 
@@ -39,20 +41,52 @@ class Game {
 
     Team* getLoser() const;
 
+    vector<Goal>& getGoals(char type);
+
+    vector<Foul>& getFouls(char type);
+
+    string displayResult();
+
+    void exchangePlayer() {
+      cout << "0 - " << teamA->getName() << endl;
+      cout << "1 - " << teamB->getName() << endl;
+      cout << "Choose team: ";
+      int choice;
+      cin >> choice;
+
+      Team *chosenTeam;
+      chosenTeam = choice == 0 ? teamA : teamB;
+
+      for (int i = 0; i < 15; ++i) {
+        cout << i << " - " << chosenTeam->getPlayer(i)->getName() << endl;
+      }
+      cout << "\n";
+
+      int playerChoice;
+      string newPlayersName;
+      cout << "Type player id: ";
+      cin >> playerChoice;
+      cout << "\n";
+      cout << "Type new player's name: \n";
+      cin.ignore();
+      getline(cin, newPlayersName);
+      chosenTeam->getPlayer(playerChoice)->setName(newPlayersName);
+    }
+
     // The user may choose what to see
     // while the teams are playing
     friend void switchDisplayMode(int);
 
-    friend ostream& operator<<(ostream&, const Game&);
+    friend ostream& operator<<(ostream&, Game&);
 
   private:
     Team *winner;
 
     Team *loser;
 
-    Team teamA;
+    Team *teamA;
 
-    Team teamB;
+    Team *teamB;
 
     clock_t startOfGame;
 

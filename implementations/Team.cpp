@@ -38,11 +38,11 @@ void Team::newFromConfig(string stringRow) {
   generatePlayers();
 }
 
-Player& Team::getPlayer(int index) {
-  return players[index];
+Player* Team::getPlayer(int index) {
+  return &players[index];
 }
 
-string Team::getName() const {
+const string& Team::getName() const {
   return name;
 }
 

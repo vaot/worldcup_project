@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <time.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -12,6 +13,10 @@
 #define VAOT_UTILITIES_H_
 
 namespace vaot {
+
+  static float clockToSeconds(clock_t temp) {
+    return (((float)temp)/CLOCKS_PER_SEC);
+  }
 
   static bool include(int list[], int el, int size) {
     for (int i = 0; i < size; ++i) {

@@ -15,10 +15,15 @@ Player::Player(string n, int teamScore) {
   power = vaot::randomInt(MIN_PLAYER_SCORE, teamScore);
   endurance = vaot::randomInt(MIN_PLAYER_SCORE, teamScore);
   defense = vaot::randomInt(MIN_PLAYER_SCORE, teamScore);
+  _attack = vaot::randomInt(MIN_PLAYER_SCORE, teamScore);
 }
 
 string Player::getName() {
   return name;
+}
+
+void Player::setName(string n) {
+  name = n;
 }
 
 int Player::getSkill(string type) {
@@ -38,6 +43,10 @@ int Player::getSkill(string type) {
 
   if (type == "defense") {
     return defense;
+  }
+
+  if (type == "attack") {
+    return _attack;
   }
 
   // Should never get to this point
