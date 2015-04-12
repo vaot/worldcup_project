@@ -14,6 +14,8 @@ Game::Game(Team& a, Team& b) {
   teamB = &b;
   teamAComparisonsWin = 0;
   teamBComparisonsWin = 0;
+  Referee temp = {vaot::randomInt(0,100)};
+  referee = temp;
 }
 
 void Game::play() {
@@ -25,10 +27,11 @@ void Game::play() {
 }
 
 void Game::computeFouls() {
+  // keep track of when this foul happen
   float now = vaot::clockToSeconds(clock() - startOfGame);
 
   if ((vaot::randomInt(0, 100)*teamA->getFoulsLikelihood()) > (vaot::randomInt(0, 100)*teamB->getFoulsLikelihood())) {
-
+    // Create foul struct, so we keep track of player and time and all that
     Foul foulA = {teamA->getPlayer(vaot::randomInt(0,14)), &teamB->getName(), now};
     teamAFouls.push_back(foulA);
     cout << "Wowwww foul from " <<  teamB->getName() << endl;
@@ -45,6 +48,34 @@ void Game::computeFouls() {
   foulAscii.open("foulAscii.txt");
   cout << foulAscii.rdbuf() << endl << endl;
   foulAscii.close();
+}
+
+void Game::exchangePlayer() {
+  cout << "0 - " << teamA->getName() << endl;
+  cout << "1 - " << teamB->getName() << endl;
+  cout << "Choose team: ";
+  int choice;
+  cin >> choice;
+
+  Team *chosenTeam;
+  chosenTeam = choice == 0 ? teamA : teamB;
+
+  for (int i = 0; i < 15; ++i) {
+    cout << i << " - " << chosenTeam->getPlayer(i)->getName() << endl;
+  }
+  cout << "\n";
+
+  int playerChoice;
+  string newPlayersName;
+  cout << "Type player id: ";
+  cin >> playerChoice;
+  cout << "\n";
+  cout << "Type new player's name: \n";
+
+  cin.ignore();
+  getline(cin, newPlayersName);
+
+  chosenTeam->getPlayer(playerChoice)->setName(newPlayersName);
 }
 
 void Game::computeGoals() {
@@ -248,7 +279,9 @@ void Game::initTime() {
          << "(Press ctr + c to switch modes): Game Time: "
          << gameTimeInSec << "\r";
 
-    if (fmod(gameTimeInSec, 1.5) == 0.0) {
+    // Small algorithym to determine when we commit a foul
+    // Based on fixed rate and referee game control level(which is random)
+    if ((fmod(gameTimeInSec, 1.5) == 0.0) || ((referee.control % 7) == 0)) {
       cout << "\n";
       computeFouls();
     }

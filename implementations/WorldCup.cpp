@@ -42,6 +42,18 @@ inline void displayNoteOnStatistics() {
   vaot::openUrl("results.html");
 }
 
+inline void cleanUpResultsPage() {
+  ifstream resultsInit;
+  resultsInit.open("results_init.html");
+
+  ofstream results;
+  results.open("results.html");
+  results << resultsInit.rdbuf();
+
+  results.close();
+  resultsInit.close();
+}
+
 int* WorldCup::getQualifiedTeams() {
   return selectedTeamsIndexes;
 }
@@ -130,6 +142,7 @@ void WorldCup::randomlyPickTeams() {
 
 void WorldCup::start() {
 
+  cleanUpResultsPage();
   displayStartPresentation();
 
   for (int i = 0; i < teams.size(); ++i) {

@@ -19,6 +19,10 @@ struct Goal {
   float when;
 };
 
+struct Referee {
+  int control; // Signifies game control
+};
+
 class Game {
   public:
     Game(Team&, Team&);
@@ -47,31 +51,7 @@ class Game {
 
     string displayResult();
 
-    void exchangePlayer() {
-      cout << "0 - " << teamA->getName() << endl;
-      cout << "1 - " << teamB->getName() << endl;
-      cout << "Choose team: ";
-      int choice;
-      cin >> choice;
-
-      Team *chosenTeam;
-      chosenTeam = choice == 0 ? teamA : teamB;
-
-      for (int i = 0; i < 15; ++i) {
-        cout << i << " - " << chosenTeam->getPlayer(i)->getName() << endl;
-      }
-      cout << "\n";
-
-      int playerChoice;
-      string newPlayersName;
-      cout << "Type player id: ";
-      cin >> playerChoice;
-      cout << "\n";
-      cout << "Type new player's name: \n";
-      cin.ignore();
-      getline(cin, newPlayersName);
-      chosenTeam->getPlayer(playerChoice)->setName(newPlayersName);
-    }
+    void exchangePlayer();
 
     // The user may choose what to see
     // while the teams are playing
@@ -80,6 +60,8 @@ class Game {
     friend ostream& operator<<(ostream&, Game&);
 
   private:
+    Referee referee;
+
     Team *winner;
 
     Team *loser;
