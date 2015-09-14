@@ -195,7 +195,7 @@ void Game::determineWinner() {
        << endl;
 
   cout << "========== "
-       << teamB->getName()
+       << teamA->getName()
        << " " << teamAGoals.size()
        << " X "
        << teamBGoals.size() << " "
@@ -204,7 +204,7 @@ void Game::determineWinner() {
 
 string Game::displayResult() {
   string temp;
-  temp += teamB->getName();
+  temp += teamA->getName();
   temp += " ";
   temp += to_string(teamAGoals.size());
   temp += " X ";
@@ -281,7 +281,7 @@ void Game::initTime() {
 
     // Small algorithym to determine when we commit a foul
     // Based on fixed rate and referee game control level(which is random)
-    if ((fmod(gameTimeInSec, 1.5) == 0.0) || ((referee.control % 7) == 0)) {
+    if (fmod(gameTimeInSec, 1.5) == 0.0) {
       cout << "\n";
       computeFouls();
     }

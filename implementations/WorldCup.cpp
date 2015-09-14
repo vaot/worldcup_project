@@ -129,7 +129,7 @@ void WorldCup::pickTeamsForSemifinals() {
 void WorldCup::randomlyPickTeams() {
   for (int i = 0; i < USER_SELECTED_TEAMS; ++i) {
     // We can now randomly pick indexes of our teams vector
-    int temp = 2;
+    int temp = vaot::randomInt(0, (teams.size()-1));
 
     // We need to ensure we pick unique indexes
     while (vaot::include(selectedTeamsIndexes, temp, USER_SELECTED_TEAMS)) {
